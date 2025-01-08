@@ -100,6 +100,7 @@ services:
       - 10091:10091
       - 11091:11091
       - 12091:12091
+      - 13091:13091
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2182
       KAFKA_ZOOKEEPER_SSL_CLIENT_ENABLE: 'true'
@@ -118,9 +119,11 @@ services:
       KAFKA_ZOOKEEPER_SSL_TRUSTSTORE_PASSWORD: confluent
       KAFKA_ZOOKEEPER_SSL_TRUSTSTORE_TYPE: JKS
       KAFKA_ZOOKEEPER_SET_ACL: 'true'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:SASL_PLAINTEXT,TOKEN:SASL_SSL,SSL:SSL,CLEAR:PLAINTEXT
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:SASL_PLAINTEXT,TOKEN:SASL_SSL,SSL:SSL,CLEAR:PLAINTEXT,SASL_SSL:SASL_SSL
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka1:9091,TOKEN://kafka1:10091,SSL://kafka1:11091,CLEAR://kafka1:12091
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka1:9091,TOKEN://kafka1:10091,SSL://kafka1:11091,CLEAR://kafka1:12091,SASL_SSL://kafka1:13091
+      KAFKA_LISTENERS: INTERNAL://kafka1:9091,TOKEN://kafka1:10091,SSL://kafka1:11091,CLEAR://kafka1:12091,SASL_SSL://kafka1:13091
+
       
       KAFKA_SUPER_USERS: User:admin;User:mds;User:superUser;User:ANONYMOUS
       KAFKA_LOG4J_LOGGERS: "kafka.authorizer.logger=INFO"
@@ -133,13 +136,20 @@ services:
       KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
       KAFKA_SASL_ENABLED_MECHANISMS: PLAIN, OAUTHBEARER
 
-      KAFKA_LISTENER_NAME_INTERNAL_SASL_ENABLED_MECHANISMS: PLAIN
-      KAFKA_LISTENER_NAME_INTERNAL_PLAIN_SASL_JAAS_CONFIG: |
+      KAFKA_LISTENER_NAME_SASL_SSL_SASL_ENABLED_MECHANISMS: PLAIN
+      KAFKA_LISTENER_NAME_SASL_SSL_PLAIN_SASL_JAAS_CONFIG: |
               org.apache.kafka.common.security.plain.PlainLoginModule required \
               username="admin" \
               password="admin-secret" \
               user_admin="admin-secret" \
               user_mds="mds-secret";
+      KAFKA_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/kafka.kafka1.keystore.jks
+      KAFKA_SSL_KEYSTORE_PASSWORD: confluent
+      KAFKA_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/kafka.kafka1.truststore.jks
+      KAFKA_SSL_TRUSTSTORE_PASSWORD: confluent
+      KAFKA_OPTS: "-Djava.security.auth.login.config=/etc/kafka/secrets/broker_jaas.conf"
+
+
 
       # Configure TOKEN listener for Confluent Platform components and impersonation
       KAFKA_LISTENER_NAME_TOKEN_OAUTHBEARER_SASL_SERVER_CALLBACK_HANDLER_CLASS: io.confluent.kafka.server.plugins.auth.token.TokenBearerValidatorCallbackHandler
@@ -147,7 +157,7 @@ services:
       KAFKA_LISTENER_NAME_TOKEN_SASL_ENABLED_MECHANISMS: OAUTHBEARER
       KAFKA_LISTENER_NAME_TOKEN_OAUTHBEARER_SASL_JAAS_CONFIG: |
               org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
-              publicKeyPath="/tmp/conf/public.pem";
+              publicKeyPath="/tmp/conf/public.pem"; 
 
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
       KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 2
@@ -294,6 +304,7 @@ services:
       - 10092:10092
       - 11092:11092
       - 12092:12092
+      - 13092:13092
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2182
       KAFKA_ZOOKEEPER_SSL_CLIENT_ENABLE: 'true'
@@ -312,10 +323,13 @@ services:
       KAFKA_ZOOKEEPER_SSL_TRUSTSTORE_PASSWORD: confluent
       KAFKA_ZOOKEEPER_SSL_TRUSTSTORE_TYPE: JKS
       KAFKA_ZOOKEEPER_SET_ACL: 'true'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:SASL_PLAINTEXT,TOKEN:SASL_SSL,SSL:SSL,CLEAR:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka2:9092,TOKEN://kafka2:10092,SSL://kafka2:11092,CLEAR://kafka2:12092
-      
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:SASL_PLAINTEXT,TOKEN:SASL_SSL,SSL:SSL,CLEAR:PLAINTEXT,SASL_SSL:SASL_SSL
+      KAFKA_INTER_BROKER_LISTENER_NAME: SASL_SSL
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka2:9092,TOKEN://kafka2:10092,SSL://kafka2:11092,CLEAR://kafka2:12092,SASL_SSL://kafka2:13092
+      KAFKA_LISTENERS: INTERNAL://kafka2:9091,TOKEN://kafka2:10091,SSL://kafka2:11091,CLEAR://kafka2:12091,SASL_SSL://kafka2:13092
+
+
+
       KAFKA_SUPER_USERS: User:admin;User:mds;User:superUser;User:ANONYMOUS
       KAFKA_LOG4J_LOGGERS: "kafka.authorizer.logger=INFO"
       KAFKA_LOG4J_ROOT_LOGLEVEL: INFO
@@ -327,13 +341,20 @@ services:
       KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
       KAFKA_SASL_ENABLED_MECHANISMS: PLAIN, OAUTHBEARER
 
-      KAFKA_LISTENER_NAME_INTERNAL_SASL_ENABLED_MECHANISMS: PLAIN
-      KAFKA_LISTENER_NAME_INTERNAL_PLAIN_SASL_JAAS_CONFIG: |
+      KAFKA_LISTENER_NAME_SASL_SSL_SASL_ENABLED_MECHANISMS: PLAIN
+      KAFKA_LISTENER_NAME_SASL_SSL__PLAIN_SASL_JAAS_CONFIG: |
               org.apache.kafka.common.security.plain.PlainLoginModule required \
               username="admin" \
               password="admin-secret" \
               user_admin="admin-secret" \
               user_mds="mds-secret";
+      KAFKA_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/kafka.kafka1.keystore.jks
+      KAFKA_SSL_KEYSTORE_PASSWORD: confluent
+      KAFKA_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/kafka.kafka1.truststore.jks
+      KAFKA_SSL_TRUSTSTORE_PASSWORD: confluent
+      KAFKA_OPTS: "-Djava.security.auth.login.config=/etc/kafka/secrets/broker_jaas.conf"
+
+
 
       # Configure TOKEN listener for Confluent Platform components and impersonation
       KAFKA_LISTENER_NAME_TOKEN_OAUTHBEARER_SASL_SERVER_CALLBACK_HANDLER_CLASS: io.confluent.kafka.server.plugins.auth.token.TokenBearerValidatorCallbackHandler
@@ -342,6 +363,7 @@ services:
       KAFKA_LISTENER_NAME_TOKEN_OAUTHBEARER_SASL_JAAS_CONFIG: |
               org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
               publicKeyPath="/tmp/conf/public.pem";
+
 
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
       KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 2
