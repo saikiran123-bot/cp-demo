@@ -147,7 +147,6 @@ services:
       KAFKA_SSL_KEYSTORE_PASSWORD: confluent
       KAFKA_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/kafka.kafka1.truststore.jks
       KAFKA_SSL_TRUSTSTORE_PASSWORD: confluent
-      KAFKA_OPTS: "-Djava.security.auth.login.config=/etc/kafka/secrets/broker_jaas.conf"
 
 
 
